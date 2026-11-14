@@ -1,0 +1,23 @@
+[package]
+name = "@deckyard/codehost"
+version = "0.1.0"
+description = "One API over GitHub, GitLab and Forgejo: repositories, issues, pull and merge requests, releases, branches, tags, files and commit statuses"
+license = "LGPL-3.0-only"
+authors = ["mplx <mplx@jennifer-lang.dev>"]
+# It talks to the forges through the github, gitlab and forgejo decks, so it
+# opens sockets. No `exec`: it does not run git.
+capabilities = ["net"]
+keywords = ["github", "gitlab", "forgejo", "gitea", "git", "forge", "issues", "pull-requests", "releases", "api"]
+
+[package.urls]
+deck = "https://raw.githubusercontent.com/deckyard/deck-codehost/main/deck.toml"
+homepage = "https://github.com/deckyard/deck-codehost"
+manual = "https://deckyard.github.io/deck-codehost/"
+
+[engines]
+jennifer = ">=0.26.0"
+
+[decks]
+"@deckyard/github" = ">=0.1.0"
+"@deckyard/gitlab" = ">=0.1.0"
+"@deckyard/forgejo" = ">=0.2.1"
