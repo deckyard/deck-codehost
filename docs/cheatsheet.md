@@ -265,7 +265,7 @@ A file attached to a release; on GitLab a release link.
 
 | Function | Returns | Does |
 |---|---|---|
-| `codehost.readFile(f, repo, path, ref)` | `bytes` | a file's content (up to 64 MiB) |
+| `codehost.readFile(f, repo, path, ref, maxBytes)` | `bytes` | a file's content, up to `maxBytes` (0 for 64 MiB, negative for no limit) |
 | `codehost.writeFile(f, repo, path, data, message, branch)` | `string` | create or replace a file with a commit; the commit SHA |
 | `codehost.deleteFile(f, repo, path, message, branch)` | `string` | delete a file with a commit; the commit SHA |
 | `codehost.listDirectory(f, repo, path, ref)` | `list of Entry` | the entries of a directory |

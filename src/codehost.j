@@ -1592,55 +1592,6 @@ func repoPath(f as Forge, repo as string) {
     return "/repos/" + $repo;
 }
 
-# projectPath is `/projects/<id or encoded path>` for a raw GitLab call.
-func projectPath(f as Forge, repo as string) {
-    if (regex.matches('^[1-9][0-9]*$', $repo)) {
-        return "/projects/" + $repo;
-    }
-    def parts as list of string init strings.split($repo, "/");
-    def good as bool init len($parts) >= 2;
-    for (def part in $parts) {
-        if (not regex.matches('^[A-Za-z0-9_][A-Za-z0-9_.-]*$', $part)) {
-            $good = false;
-        }
-    }
-    if (not $good) {
-        fail(
-            $f,
-            "a GitLab project is a numeric id or a path such as group/sub/name, got " +
-                shown($repo));
-    }
-    return "/projects/" + strings.replace($repo, "/", "%2F");
-}
-
-# githubDraft opens a draft pull request, which the github deck's
-# createPullRequest cannot, and reads it back typed.
-func githubDraft(
-    f as Forge,
-    repo as string,
-    head as string,
-    base as string,
-    title as string,
-    body as string) {
-    if (strings.trim($title) == "" or $head == "" or $base == "") {
-        fail($f, "a change request needs a head, a base and a title");
-    }
-    def doc as json.Value init json.map();
-    $doc = json.set($doc, "/head", $head);
-    $doc = json.set($doc, "/base", $base);
-    $doc = json.set($doc, "/title", $title);
-    if ($body != "") {
-        $doc = json.set($doc, "/body", $body);
-    }
-    $doc = json.set($doc, "/draft", true);
-    def made as json.Value init github.call(
-        $f.github,
-        "POST",
-        repoPath($f, $repo) + "/pulls",
-        json.encode($doc));
-    return github.pullRequest($f.github, $repo, json.asInt($made, "/number"));
-}
-
 /**
  * Open a change request.
  *
@@ -1692,16 +1643,14 @@ export func createChangeRequest(
         def marked as string init $title;
         match ($f.backend) {
             when "github" {
-                if ($isDraft) {
-                    return githubChange(githubDraft($f, $repo, $head, $base, $title, $body));
-                }
                 return githubChange(github.createPullRequest(
                     $f.github,
                     $repo,
                     $head,
                     $base,
                     $title,
-                    $body));
+                    $body,
+                    $isDraft));
             }
             when "gitlab" {
                 if ($isDraft and not regex.matches(GITLAB_DRAFT, $title) and
@@ -1829,11 +1778,8 @@ export func reopenChangeRequest(f as Forge, repo as string, number as int) {
 # gitlabSameProject says whether a merge request's source branch lives in
 # its target project (not in a fork).
 func gitlabSameProject(f as Forge, repo as string, number as int) {
-    def path as string init projectPath($f, $repo) + "/merge_requests/" +
-        convert.toString($number);
-    def d as json.Value init gitlab.call($f.gitlab, "GET", $path, "");
-    def source as int init json.asInt($d, "/source_project_id");
-    return $source != 0 and $source == json.asInt($d, "/target_project_id");
+    def mr as gitlab.MergeRequest init gitlab.mergeRequest($f.gitlab, $repo, $number);
+    return $mr.sourceProjectId != 0 and $mr.sourceProjectId == $mr.targetProjectId;
 }
 
 # forgejoSameRepository says whether a pull request's head branch lives in
@@ -2347,7 +2293,13 @@ export func uploadAsset(
     try {
         match ($f.backend) {
             when "github" {
-                return githubAsset(github.uploadAsset($f.github, $repo, $release.id, $name, $data));
+                return githubAsset(github.uploadAsset(
+                    $f.github,
+                    $repo,
+                    $release.id,
+                    $name,
+                    "",
+                    $data));
             }
             when "gitlab" {
                 return gitlabAsset(gitlab.uploadAsset(
@@ -2734,21 +2686,41 @@ export func deleteTag(f as Forge, repo as string, name as string) {
  * Read a file from a repository, as its bytes. A file in Git LFS comes as
  * its content on GitLab and Forgejo, as its pointer on GitHub.
  *
+ * `maxBytes` is `downloadAsset`'s: 0 for 64 MiB, negative for no limit.
+ * GitHub refuses a cap over 100 MB (its raw limit, `github.MAX_FILE_BYTES`);
+ * the forgejo deck reads at most 64 MiB whatever the cap, and a smaller cap
+ * is checked once the file is read.
+ *
  * @param f {Forge} the forge
  * @param repo {string} `owner/name`, or GitLab's full path
  * @param path {string} the file, e.g. `docs/index.md`
  * @param ref {string} a branch, tag or commit; "" for the default branch
+ * @param maxBytes {int} the largest file accepted; 0 for 64 MiB, negative
+ *   for no limit
  * @return {bytes} the content
  * @throws {CodehostError} kind `"codehost"` when it does not exist or is a
- *   directory
- * @throws {Error} kind `"limit"` for a file over 64 MiB
+ *   directory, or for a GitHub cap over 100 MB (status 0)
+ * @throws {Error} kind `"limit"` for a file over `maxBytes` (on Forgejo
+ *   over 64 MiB too)
+ * @example
+ *   def v as bytes init codehost.readFile($f, "me/app", "VERSION", "main", 4096);
  */
-export func readFile(f as Forge, repo as string, path as string, ref as string) {
+export func readFile(f as Forge, repo as string, path as string, ref as string, maxBytes as int) {
     try {
         match ($f.backend) {
-            when "github" { return github.readFile($f.github, $repo, $path, $ref); }
-            when "gitlab" { return gitlab.readFile($f.gitlab, $repo, $path, $ref, 0); }
-            when "forgejo" { return forgejo.readFile($f.forgejo, $repo, $path, $ref); }
+            when "github" { return github.readFile($f.github, $repo, $path, $ref, $maxBytes); }
+            when "gitlab" { return gitlab.readFile($f.gitlab, $repo, $path, $ref, $maxBytes); }
+            when "forgejo" {
+                def data as bytes init forgejo.readFile($f.forgejo, $repo, $path, $ref);
+                if ($maxBytes > 0 and len($data) > $maxBytes) {
+                    throw Error{
+                        kind: "limit",
+                        message: "codehost: " + shown($path) + " is over maxBytes, " +
+                            convert.toString($maxBytes) + " bytes"
+                    };
+                }
+                return $data;
+            }
         }
     } catch (e) {
         if (passes($e.kind)) {
@@ -3173,17 +3145,7 @@ export func commitStatuses(f as Forge, repo as string, sha as string) {
                 return $out;
             }
             when "gitlab" {
-                # GitLab lists them oldest first; @deckyard/gitlab 0.1.0 passes
-                # that on, later releases reverse it. Ids grow with time, so
-                # the order is read from them rather than from the version.
-                def got as list of gitlab.CommitStatus init gitlab.commitStatuses(
-                    $f.gitlab,
-                    $repo,
-                    $sha);
-                if (len($got) > 1 and $got[0].id < $got[len($got) - 1].id) {
-                    $got = lists.reverse($got);
-                }
-                for (def s in $got) {
+                for (def s in gitlab.commitStatuses($f.gitlab, $repo, $sha)) {
                     $out[] = gitlabStatus($s);
                 }
                 return $out;

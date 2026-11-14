@@ -59,6 +59,11 @@ def c as gitlab.Client init gitlab.withTimeout(gitlab.withToken(gitlab.client("g
 def gl as codehost.Forge init codehost.fromGitlab($c);
 ```
 
+The github and forgejo decks refuse plain `http://` to another machine than
+this one unless the client has `withPlainHttp`, so `connect` with such an
+address fails at the first request:
+`codehost.fromForgejo(forgejo.withPlainHttp(forgejo.client("http://git.lan:3000")))`.
+
 Every verb then takes the forge first, and the rest in the order the
 backend decks use where they agree:
 

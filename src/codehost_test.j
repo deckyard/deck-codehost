@@ -967,7 +967,8 @@ func testCreateChangeRequest() {
     for (def b in BACKENDS) {
         def body as string init PULL_GH;
         def want as list of string init ["POST /api/v3/repos/me/app/pulls"];
-        def sent as string init '{"head":"fix","base":"main","title":"Fix crash","body":"Fixes #12."}';
+        def sent as string init '{"head":"fix","base":"main","title":"Fix crash","body":"Fixes #12.",' +
+            '"draft":false}';
         if ($b == "gitlab") {
             $body = MERGE_GL;
             $want = ["POST /api/v4/projects/me/app/merge_requests"];
@@ -976,6 +977,7 @@ func testCreateChangeRequest() {
         } elseif ($b == "forgejo") {
             $body = PULL_FJ;
             $want = ["POST /api/v1/repos/me/app/pulls"];
+            $sent = '{"head":"fix","base":"main","title":"Fix crash","body":"Fixes #12."}';
         }
         def fk as Fake init fake([answer(201, $body)]);
         testing.assertEqual(
@@ -999,14 +1001,11 @@ func testCreateDraftChangeRequest() {
     $draft.isDraft = true;
     $draft.mergeable = false;
     for (def b in BACKENDS) {
+        # GitHub: one POST with the github deck's isDraft, a real draft.
         def replies as list of Reply init [
-            answer(201, '{"number":3}'),
-            ok(strings.replace(PULL_GH, '"draft":false', '"draft":true'))
+            answer(201, strings.replace(PULL_GH, '"draft":false', '"draft":true'))
         ];
-        def want as list of string init [
-            "POST /api/v3/repos/me/app/pulls",
-            "GET /api/v3/repos/me/app/pulls/3"
-        ];
+        def want as list of string init ["POST /api/v3/repos/me/app/pulls"];
         def sent as string init '{"head":"fix","base":"main","title":"Fix crash",' +
             '"body":"Fixes #12.","draft":true}';
         if ($b == "gitlab") {
@@ -1478,6 +1477,8 @@ func testUploadAsset() {
             testing.assertContains($seen[0].contentType, "multipart/form-data");
         } else {
             testing.assertEqual($seen[0].body, "tarball");
+            # no type exposed: the github deck's "" sends octet-stream
+            testing.assertEqual($seen[0].contentType, "application/octet-stream");
         }
     }
 }
@@ -1675,7 +1676,7 @@ func testReadFile() {
             $media = "text/plain";
         }
         def fk as Fake init fake([raw($media, "# Docs\n")]);
-        def got as bytes init readFile(forgeOn($b, $fk), "me/app", "docs/a.md", "main");
+        def got as bytes init readFile(forgeOn($b, $fk), "me/app", "docs/a.md", "main", 0);
         testing.assertEqual(convert.stringFromBytes("utf-8", $got), "# Docs\n");
         expect($b, finish($fk), $want);
     }
@@ -1962,18 +1963,16 @@ func testCommitStatuses() {
     }
 }
 
-# @deckyard/gitlab after 0.1.0 returns newest first itself: the order is read
-# from the ids, so a list that is already newest first stays as it is.
-func testGitlabStatusesInEitherOrder() {
-    for (def body in [
-        '[{"id":7,"name":"old","status":"success"},{"id":9,"name":"new","status":"failed"}]',
-        '[{"id":9,"name":"new","status":"failed"},{"id":7,"name":"old","status":"success"}]'
-    ]) {
-        def fk as Fake init fake([ok($body)]);
-        def got as list of CommitStatus init commitStatuses(forgeOn("gitlab", $fk), "me/app", SHA);
-        testing.assertEqual([$got[0].context, $got[1].context], ["new", "old"]);
-        finish($fk);
-    }
+# @deckyard/gitlab (0.2.0 and later) reverses GitLab's oldest-first list
+# itself; codehost keeps the deck's order and reads no ids (it reversed a
+# list whose first id was below its last before).
+func testGitlabStatusesKeepTheDecksOrder() {
+    def fk as Fake init fake([
+        ok('[{"id":9,"name":"first","status":"failed"},{"id":7,"name":"second","status":"success"}]')
+    ]);
+    def got as list of CommitStatus init commitStatuses(forgeOn("gitlab", $fk), "me/app", SHA);
+    testing.assertEqual([$got[0].context, $got[1].context], ["second", "first"]);
+    finish($fk);
 }
 
 func testStatusStates() {
@@ -2145,5 +2144,38 @@ func testCancelledPassesThrough() {
     time.sleep(time.fromMilliseconds(200));
     task.cancel($t);
     testing.assertEqual(task.wait($t), "cancelled");
+    finish($fk);
+}
+
+# readFile passes its cap on: a file over it is kind "limit" on every forge
+# (Forgejo's is checked once the file is read); 0 is 64 MiB.
+func testReadFileCap() {
+    for (def b in BACKENDS) {
+        def media as string init "application/vnd.github.raw+json";
+        if ($b != "github") {
+            $media = "text/plain";
+        }
+        def fk as Fake init fake([raw($media, "0123456789"), raw($media, "0123456789")]);
+        def f as Forge init forgeOn($b, $fk);
+        try {
+            readFile($f, "me/app", "big.bin", "", 9);
+            missed();
+        } catch (e) {
+            testing.assertEqual($e.kind, "limit");
+            testing.assertContains($e.message, ": ");
+        }
+        testing.assertEqual(len(readFile($f, "me/app", "big.bin", "", 10)), 10);
+        finish($fk);
+    }
+    # GitHub serves raw files up to 100 MB: a larger cap is refused unsent.
+    def fk as Fake init fake([]);
+    try {
+        readFile(forgeOn("github", $fk), "me/app", "big.bin", "", 104857601);
+        missed();
+    } catch (e) {
+        testing.assertEqual($e.kind, ERROR_KIND);
+        testing.assertEqual($e.status, 0);
+        testing.assertContains($e.message, "github: a file is read up to 104857600 bytes");
+    }
     finish($fk);
 }
