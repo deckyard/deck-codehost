@@ -12,8 +12,8 @@ import "@deckyard/codehost/" as codehost;
 
 Every verb takes a `Forge` first and throws a `CodehostError` (kind
 `"codehost"`, with the HTTP `status` and the `backend`) when it fails; the
-generic kinds `"limit"`, `"timeout"`, `"closed"` and `"cancelled"` pass
-through as the backend threw them. A `repo` is `owner/name`, or on GitLab a
+generic kinds `"limit"`, `"timeout"`, `"closed"`, `"cancelled"` and `"net"`
+(a network failure, a `net.NetError`) pass through as the backend threw them. A `repo` is `owner/name`, or on GitLab a
 full path with subgroups (`group/sub/name`) or a numeric id; a `number` is an
 issue's or change request's number in its repository (GitLab's `iid`).
 

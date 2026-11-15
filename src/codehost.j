@@ -17,8 +17,8 @@
  * States, commit-status states, release assets, draft flags and labels are
  * normalised (see the docs). Every failure is a `CodehostError` (kind
  * `"codehost"`) naming the backend and the HTTP status, except the generic
- * kinds `"limit"`, `"timeout"`, `"closed"` and `"cancelled"`, which pass
- * through untouched.
+ * kinds `"limit"`, `"timeout"`, `"closed"`, `"cancelled"` and `"net"` (a
+ * network failure, a `net.NetError`), which pass through untouched.
  *
  * @module codehost
  * @example
@@ -53,7 +53,7 @@ export def const STATUS_STATES as list of string init ["pending", "success", "fa
 export def const LABEL_COLOR as string init "#ededed";
 
 # The kinds that pass through every verb as they are.
-def const GENERIC_KINDS as list of string init ["limit", "timeout", "closed", "cancelled"];
+def const GENERIC_KINDS as list of string init ["limit", "timeout", "closed", "cancelled", "net"];
 
 # The title prefixes GitLab reads as "draft" (its `DRAFT_REGEX`; `WIP:` no
 # longer counts).

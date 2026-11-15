@@ -51,8 +51,8 @@ backend deck (`github.client(...)` and its `with*` options) and wrap it
 with `fromGithub`, `fromGitlab` or `fromForgejo`.
 
 Errors are one `CodehostError` (kind `"codehost"`, with the HTTP `status`
-and the `backend`); `"limit"`, `"timeout"`, `"closed"` and `"cancelled"`
-pass through.
+and the `backend`); `"limit"`, `"timeout"`, `"closed"`, `"cancelled"` and
+`"net"` (a network failure, `net.NetError`) pass through.
 
 ## Requirements
 

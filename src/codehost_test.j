@@ -2088,7 +2088,7 @@ func testOtherKindsAreRebuilt() {
         testing.assertEqual($e.message, "forgejo: GET /x: HTTP 500");
         testing.assertEqual($e.status, 500);
     }
-    for (def kind in ["limit", "timeout", "closed", "cancelled", "codehost"]) {
+    for (def kind in ["limit", "timeout", "closed", "cancelled", "net", "codehost"]) {
         testing.assertTrue(passes($kind));
     }
     for (def kind in ["github", "gitlab", "forgejo", "runtime", "value"]) {
