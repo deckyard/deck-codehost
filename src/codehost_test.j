@@ -13,6 +13,7 @@
  * so GitHub paths start with `/api/v3`, uploads with `/api/uploads`.
  */
 use httpd;
+use net;
 use maps;
 use task;
 use testing;
@@ -2093,6 +2094,25 @@ func testOtherKindsAreRebuilt() {
     }
     for (def kind in ["github", "gitlab", "forgejo", "runtime", "value"]) {
         testing.assertFalse(passes($kind));
+    }
+}
+
+# A network failure in any backend reaches the caller as net's NetError,
+# fields intact: the backends and codehost all pass kind "net" on.
+func testNetPassesThrough() {
+    def server as net.Listener init net.listen("127.0.0.1:0");
+    def address as string init net.address($server);
+    net.close($server);
+    for (def b in BACKENDS) {
+        try {
+            issue(connect($b, "http://" + $address, ""), "me/app", 12);
+            missed();
+        } catch (e) {
+            testing.assertEqual([$b, $e.kind], [$b, "net"]);
+            def ne as net.NetError init $e;
+            testing.assertEqual([$b, $ne.reason, $ne.op], [$b, "refused", "connect"]);
+            testing.assertFalse($ne.sent);
+        }
     }
 }
 
