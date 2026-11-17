@@ -181,9 +181,7 @@ The generic kinds pass through untouched, as the backend threw them:
 `maxBytes`), `"timeout"`, `"closed"`, `"cancelled"` and `"net"`. A `"net"`
 error is the `net.NetError` the transport threw for a refused, reset or
 unreachable connection, a name that does not resolve or a failed TLS
-handshake, with `op`, `reason`, `sent` and `replied` to read; it reaches the
-caller as such once the backend decks pass it on (github, gitlab and
-forgejo releases after jennifer's M28.65). Match the kind first, then read
+handshake, with `op`, `reason`, `sent` and `replied` to read. Match the kind first, then read
 the fields; never match the message:
 
 ```jennifer

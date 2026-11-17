@@ -58,8 +58,8 @@ and the `backend`); `"limit"`, `"timeout"`, `"closed"`, `"cancelled"` and
 
 Jennifer 0.26.0 or newer, with the `net` capability (it talks HTTPS to the
 forges); not usable on `jennifer-tiny`. Depends on `@deckyard/github`
-(`>=0.2.0`), `@deckyard/gitlab` (`>=0.3.0`) and `@deckyard/forgejo`
-(`>=0.2.1`); run
+(`>=0.3.0`), `@deckyard/gitlab` (`>=0.4.0`) and `@deckyard/forgejo`
+(`>=0.4.0`); run
 `tools/vendor-deps.sh` once before the gate.
 
 ## Development
