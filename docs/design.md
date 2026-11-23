@@ -148,7 +148,8 @@ struct loses its module identity.
 
 ## Dependencies on the interpreter
 
-Floor `>=0.26.0`, capability `net`. `[decks]`: `@deckyard/github`
+Floor `>=0.27.0` (the UTF-8 codecs of `encoding.encode` / `decode`),
+capability `net`. `[decks]`: `@deckyard/github`
 `>=0.3.0`, `@deckyard/gitlab` `>=0.4.0`, `@deckyard/forgejo` `>=0.4.0`. The
 backends are vendored from their released tags, so unreleased backend
 changes are invisible here until released. From `jennifer`'s milestones:

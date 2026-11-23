@@ -70,8 +70,8 @@ and Gitea give a lightweight tag its commit's message.
 ## Files
 
 ```jennifer
-def text as string init convert.stringFromBytes("utf-8", codehost.readFile($f, "me/app", "VERSION", "", 4096));
-def sha as string init codehost.writeFile($f, "me/app", "VERSION", convert.bytesFromString("utf-8", "1.3.0\n"),
+def text as string init encoding.decode("utf-8", codehost.readFile($f, "me/app", "VERSION", "", 4096));
+def sha as string init codehost.writeFile($f, "me/app", "VERSION", encoding.encode("utf-8", "1.3.0\n"),
     "bump the version", "main");
 codehost.deleteFile($f, "me/app", "old.txt", "drop old.txt", "main");
 for (def e in codehost.listDirectory($f, "me/app", "docs", "")) {

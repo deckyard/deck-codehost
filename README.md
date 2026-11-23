@@ -56,7 +56,7 @@ and the `backend`); `"limit"`, `"timeout"`, `"closed"`, `"cancelled"` and
 
 ## Requirements
 
-Jennifer 0.26.0 or newer, with the `net` capability (it talks HTTPS to the
+Jennifer 0.27.0 or newer, with the `net` capability (it talks HTTPS to the
 forges); not usable on `jennifer-tiny`. Depends on `@deckyard/github`
 (`>=0.3.0`), `@deckyard/gitlab` (`>=0.4.0`) and `@deckyard/forgejo`
 (`>=0.4.0`); run

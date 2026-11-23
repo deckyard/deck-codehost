@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: LGPL-3.0-only
 # SPDX-FileCopyrightText: Copyright (C) 2026 mplx <mplx@jennifer-lang.dev>
-# pragma-jennifer-version: >=0.26.0
+# pragma-jennifer-version: >=0.27.0
 # pragma-jennifer-capability: net
 
 /**
@@ -405,7 +405,7 @@ func shown(text as string) {
     def cut as string init $text;
     def more as string init "";
     if (len($text) > 60) {
-        $cut = strings.substring($text, 0, 60);
+        $cut = $text[..60];
         $more = "...";
     }
     return "\"" + regex.replace("[^ -~]", $cut, "?") + $more + "\"";

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: LGPL-3.0-only
 # SPDX-FileCopyrightText: Copyright (C) 2026 mplx <mplx@jennifer-lang.dev>
-# pragma-jennifer-version: >=0.26.0
+# pragma-jennifer-version: >=0.27.0
 
 /**
  * The conformance suite: jennifer test src/codehost_test.j
@@ -18,6 +18,7 @@ use maps;
 use task;
 use testing;
 use time;
+use encoding;
 
 /** A canned reply. `BASE` in a header or the body stands for the server's URL. */
 def struct Reply {
@@ -57,7 +58,7 @@ func serve(srv as httpd.Server, base as string, replies as list of Reply) {
         def req as httpd.Request init httpd.accept($srv);
         def text as string init "";
         try {
-            $text = convert.stringFromBytes("utf-8", httpd.body($req));
+            $text = encoding.decode("utf-8", httpd.body($req));
         } catch (e) {
             $text = "<binary>";
         }
@@ -1439,7 +1440,7 @@ func testGitlabHasNoPrereleases() {
 }
 
 func testUploadAsset() {
-    def data as bytes init convert.bytesFromString("utf-8", "tarball");
+    def data as bytes init encoding.encode("utf-8", "tarball");
     for (def b in BACKENDS) {
         def asset as string init RELEASE_GH;
         $asset = '{"id":41,"name":"app.tar.gz","content_type":"application/gzip","size":10,' +
@@ -1494,7 +1495,7 @@ func testDownloadAsset() {
         }
         def fk as Fake init fake([raw("application/octet-stream", "tarball")]);
         def got as bytes init downloadAsset(forgeOn($b, $fk), wantAsset($b, $fk.url), 0);
-        testing.assertEqual(convert.stringFromBytes("utf-8", $got), "tarball");
+        testing.assertEqual(encoding.decode("utf-8", $got), "tarball");
         expect($b, finish($fk), $want);
     }
 }
@@ -1678,13 +1679,13 @@ func testReadFile() {
         }
         def fk as Fake init fake([raw($media, "# Docs\n")]);
         def got as bytes init readFile(forgeOn($b, $fk), "me/app", "docs/a.md", "main", 0);
-        testing.assertEqual(convert.stringFromBytes("utf-8", $got), "# Docs\n");
+        testing.assertEqual(encoding.decode("utf-8", $got), "# Docs\n");
         expect($b, finish($fk), $want);
     }
 }
 
 func testWriteFile() {
-    def data as bytes init convert.bytesFromString("utf-8", "1.2.0\n");
+    def data as bytes init encoding.encode("utf-8", "1.2.0\n");
     for (def b in BACKENDS) {
         def replies as list of Reply init [
             answer(404, '{"message":"Not Found"}'),
@@ -2133,7 +2134,7 @@ func testLimitPassesThrough() {
 func testTimeoutPassesThrough() {
     for (def b in ["github", "gitlab"]) {
         def slow as Reply init ok(ISSUE_GH);
-        $slow.delayMs = 600;
+        $slow.delayMs = 450;
         def fk as Fake init fake([$slow]);
         def f as Forge init forgeOn($b, $fk);
         $f.github = github.withTimeout($f.github, 150);
@@ -2150,7 +2151,7 @@ func testTimeoutPassesThrough() {
 
 func testCancelledPassesThrough() {
     def slow as Reply init ok(ISSUE_GH);
-    $slow.delayMs = 1500;
+    $slow.delayMs = 250;
     def fk as Fake init fake([$slow]);
     def f as Forge init forgeOn("github", $fk);
     def t as task of string init spawn {
@@ -2161,7 +2162,7 @@ func testCancelledPassesThrough() {
         }
         return "none";
     };
-    time.sleep(time.fromMilliseconds(200));
+    time.sleep(time.fromMilliseconds(50));
     task.cancel($t);
     testing.assertEqual(task.wait($t), "cancelled");
     finish($fk);
