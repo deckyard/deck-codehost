@@ -19,12 +19,12 @@ codehost.closeIssue($f, "me/app", $bug.number);
 codehost.reopenIssue($f, "me/app", $bug.number);
 ```
 
-`issues` takes `open`, `closed` or `all` and lists issues only: GitHub's
+`issues` takes `open`, `closed` or `all` and lists issues only: GitHub™'s
 listing mixes pull requests in, and the github deck drops them. `issue` of
-a number that is a pull request's (GitHub and Forgejo share the numbering)
+a number that is a pull request's (GitHub and Forgejo™ share the numbering)
 answers with `isChangeRequest` set.
 
-`comments` lists an issue's comments oldest first. GitLab writes system
+`comments` lists an issue's comments oldest first. GitLab™ writes system
 notes for events (a label change, a push); they are left out, as GitHub and
 Forgejo do not list events as comments. `Issue.comments` counts the same.
 

@@ -6,7 +6,7 @@
 ## Scope
 
 One API over the code forges, so a release script or a triage bot runs
-against GitHub, GitLab and Forgejo (and Gitea) alike: repositories, issues,
+against GitHub™, GitLab™ and Forgejo™ (and Gitea™) alike: repositories, issues,
 labels and comments, change requests (pull and merge requests), releases and
 assets, branches, tags, files and commit statuses.
 
@@ -15,7 +15,7 @@ The deck is a facade over three backend decks, `@deckyard/github`,
 common denominator only, as a storage facade would over storage services.
 What one forge alone has stays in the backend decks: GitHub Actions and
 secrets, GitLab pipelines, groups and approvals, reviews, milestones,
-webhooks, members, forks, search and GraphQL. Those are reached through the
+webhooks, members, forks, search and GraphQL™. Those are reached through the
 backend client the `Forge` holds (see the introduction, "Beyond the common
 verbs"), so leaving them out costs a program one `match`, not a second
 client.

@@ -13,7 +13,7 @@ import "@deckyard/codehost/" as codehost;
 Every verb takes a `Forge` first and throws a `CodehostError` (kind
 `"codehost"`, with the HTTP `status` and the `backend`) when it fails; the
 generic kinds `"limit"`, `"timeout"`, `"closed"`, `"cancelled"` and `"net"`
-(a network failure, a `net.NetError`) pass through as the backend threw them. A `repo` is `owner/name`, or on GitLab a
+(a network failure, a `net.NetError`) pass through as the backend threw them. A `repo` is `owner/name`, or on GitLab™ a
 full path with subgroups (`group/sub/name`) or a numeric id; a `number` is an
 issue's or change request's number in its repository (GitLab's `iid`).
 
@@ -22,10 +22,10 @@ issue's or change request's number in its repository (GitLab's `iid`).
 | Constant | Value | Meaning |
 |---|---|---|
 | `ERROR_KIND` | `"codehost"` | The `kind` of every error of the deck's own |
-| `BACKENDS` | `["github", "gitlab", "forgejo"]` | The backends a `Forge` can hold; Gitea goes through `forgejo` |
+| `BACKENDS` | `["github", "gitlab", "forgejo"]` | The backends a `Forge` can hold; Gitea™ goes through `forgejo` |
 | `MERGE_STYLES` | `["merge", "squash", "rebase"]` | The styles `mergeChangeRequest` takes; GitLab refuses `rebase` |
 | `STATUS_STATES` | `["pending", "success", "failure", "error"]` | The normalised commit-status states |
-| `LABEL_COLOR` | `"#ededed"` | The colour of a label the deck creates on Forgejo for `setIssueLabels` / `addIssueLabels` |
+| `LABEL_COLOR` | `"#ededed"` | The colour of a label the deck creates on Forgejo™ for `setIssueLabels` / `addIssueLabels` |
 
 ## Types
 
@@ -38,7 +38,7 @@ deck does not cover.
 | Field | Meaning |
 |---|---|
 | `backend as string` | `github`, `gitlab` or `forgejo` |
-| `github as github.Client` | the GitHub client |
+| `github as github.Client` | the GitHub™ client |
 | `gitlab as gitlab.Client` | the GitLab client |
 | `forgejo as forgejo.Client` | the Forgejo (or Gitea) client |
 
@@ -200,7 +200,7 @@ A file attached to a release; on GitLab a release link.
 | `codehost.connect(backend, host, token)` | `Forge` | a forge by backend name (`github`, `gitlab`, `forgejo`), host and token (`""` for anonymous); no backend import needed |
 | `codehost.fromGithub(c)` | `Forge` | a forge on github.com or a GitHub Enterprise Server |
 | `codehost.fromGitlab(c)` | `Forge` | a forge on gitlab.com or a self-managed GitLab |
-| `codehost.fromForgejo(c)` | `Forge` | a forge on Codeberg, a Forgejo or a Gitea |
+| `codehost.fromForgejo(c)` | `Forge` | a forge on Codeberg™, a Forgejo or a Gitea |
 
 ## Repositories
 

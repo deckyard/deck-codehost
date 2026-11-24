@@ -15,8 +15,8 @@ for (def a in $latest.assets) {
 }
 ```
 
-`latestRelease` is, on GitHub and Forgejo, the newest release that is
-neither a draft nor a pre-release, on GitLab the one with the latest
+`latestRelease` is, on GitHub™ and Forgejo™, the newest release that is
+neither a draft nor a pre-release, on GitLab™ the one with the latest
 release date that is not in the future. `release` finds one by its tag,
 `releases` lists them newest first.
 
@@ -65,7 +65,7 @@ codehost.deleteBranch($f, "me/app", "release-1.3");
 `from` and `target` take a branch, tag or commit; "" is the default
 branch. A `message` makes an annotated tag, "" a lightweight one. GitHub's
 tag listing carries no annotations, so `Tag.message` is "" there; Forgejo
-and Gitea give a lightweight tag its commit's message.
+and Gitea™ give a lightweight tag its commit's message.
 
 ## Files
 
@@ -85,7 +85,7 @@ cap over 100 MB (its raw limit); the forgejo deck reads at most 64 MiB
 whatever the cap.
 
 `writeFile` creates or replaces the file with a commit of its own and
-answers with the commit's SHA; `deleteFile` likewise. A file in Git LFS
+answers with the commit's SHA; `deleteFile` likewise. A file in Git™ LFS
 reads as its content on GitLab and Forgejo, as the pointer on GitHub.
 `listDirectory` names entry types `file`, `dir`, `symlink` and
 `submodule` on every forge. GitHub's contents listing calls a symlink and a

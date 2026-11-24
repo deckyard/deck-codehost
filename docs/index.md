@@ -4,7 +4,7 @@
 # @deckyard/codehost
 
 One API over the code forges, so a release script or a triage bot runs
-against GitHub, GitLab and Forgejo (and Gitea) alike: repositories, issues,
+against GitHub™, GitLab™ and Forgejo™ (and Gitea™) alike: repositories, issues,
 change requests (pull and merge requests), releases and their assets,
 branches, tags, files and commit statuses. It is a facade over three decks,
 [`@deckyard/github`](https://deckyard.github.io/deck-github/),
@@ -15,7 +15,7 @@ look the same.
 
 Only the common denominator is here. What one forge alone has (GitHub
 Actions and secrets, GitLab pipelines, groups and approvals, webhooks,
-milestones, reviews, GraphQL) stays in the backend decks: see
+milestones, reviews, GraphQL™) stays in the backend decks: see
 [Beyond the common verbs](#beyond-the-common-verbs).
 
 - [Issues and change requests](issues.md): issues, comments, labels, pull
@@ -227,3 +227,13 @@ assignees, webhooks, collaborators and members, forks, repository creation
 and settings, commits and combined statuses, check runs, CI (Actions,
 pipelines, variables, secrets), search, GraphQL, and any raw endpoint
 (`call`, `getAll`) - all in the backend decks.
+
+## Trademarks
+
+GitHub™ is a trademark of GitHub, Inc. GitLab™ is a trademark of GitLab Inc.
+Codeberg™ is a trademark of Codeberg e.V. Other product and company names,
+such as Forgejo™ and Gitea™, may be trademarks of their respective owners.
+They are used only to identify the products this deck works with. This deck
+is an independent project, not affiliated with, sponsored or endorsed by
+GitHub, Inc., GitLab Inc., Codeberg e.V., the Forgejo project or CommitGo,
+Inc.

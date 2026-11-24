@@ -4,7 +4,7 @@
 [![Documentation](https://img.shields.io/badge/docs-github%20pages-blue)](https://deckyard.github.io/deck-codehost/)
 [![release](https://img.shields.io/github/v/release/deckyard/deck-codehost)](https://github.com/deckyard/deck-codehost/releases/latest)
 
-One API over GitHub, GitLab and Forgejo (and Gitea) for
+One API over GitHub™, GitLab™ and Forgejo™ (and Gitea™) for
 [Jennifer](https://jennifer-lang.dev/) programs, so a release script or a
 triage bot runs against any of them: repositories, issues, labels and
 comments, change requests (pull and merge requests), releases and their
@@ -70,6 +70,16 @@ jennifer test src/codehost_test.j      # the test overlay
 tools/check-docs.sh                  # docs against the code
 tools/pack.sh dist                   # build the release archive
 ```
+
+## Trademarks
+
+GitHub™ is a trademark of GitHub, Inc. GitLab™ is a trademark of GitLab Inc.
+Codeberg™ is a trademark of Codeberg e.V. Other product and company names,
+such as Forgejo™ and Gitea™, may be trademarks of their respective owners.
+They are used only to identify the products this deck works with. This deck
+is an independent project, not affiliated with, sponsored or endorsed by
+GitHub, Inc., GitLab Inc., Codeberg e.V., the Forgejo project or CommitGo,
+Inc.
 
 ## Licence
 
