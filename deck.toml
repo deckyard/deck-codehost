@@ -1,6 +1,6 @@
 [package]
 name = "@deckyard/codehost"
-version = "0.3.0"
+version = "0.4.0"
 description = "One API over GitHub, GitLab and Forgejo: repositories, issues, pull and merge requests, releases, branches, tags, files and commit statuses"
 license = "LGPL-3.0-only"
 authors = ["mplx <mplx@jennifer-lang.dev>"]
